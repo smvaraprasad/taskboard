@@ -1,60 +1,63 @@
 import React  from "react";
 import {useState} from "react";
 import Listing from "./Listing";
+import Adder from "./Adder";
 function Todo(props){
     //afteruse
     const [sublist,setsublist]=useState({
-        id:props.index,
+        id:props.id,
         title:props.title,
         list:props.list});
+    //
     function handleChange(e){
-        const refer = e.target.getAttribute("refer");
-        const value = e.target.value;
-        
-        if(refer==="subtasks"){
-            setsublist({...sublist,
-                list:[...sublist.list,
-                        {
-                            ...sublist.list.map((item)=>{
-                                console.log(e.target.getAttribute("ckey"));
-                                console.log(e.target.getAttribute("key"));
-                                console.log(e.target);
-                                if(item.key===e.target.getAttribute("ckey")){
-                                    return item;
-                                }
-                            }),
-                        desc:value}
-                    ] 
-            });
-        }
-        else{
-            setsublist({...sublist,
-                title:value 
-            });
-        }
+        const values=e.target.value;
+        const newlist =sublist.list.map((item)=>{
+            console.log("item key:",item.key);//
+            console.log("event key:",e.target.getAttribute("key"));//
+            if(item.key!==e.target.getAttribute("key"))
+            {item.desc=values;}
+            return item;});
+
+        setsublist({...sublist,
+            list: newlist
+        });
+        e.preventDefault();
     }
     function checkEnter(event)
     {
-
-        if(event.keyCode===13)
+        if(event.keyCode===13 )
         {
-        const form = event.target.form;
-        const index = [...form].indexOf(event.target);
-        form.elements[index + 1].focus();
-        event.preventDefault();
+            if(1)
+            {
+                console.log("enterd");
+                setsublist({...sublist,
+                    list:[...sublist.list,
+                        {
+                            key: sublist.list[sublist.list.size()-1].key+"1",
+                            desc: ""
+                        }] 
+                });
+                event.preventDefault();
+            }
+            else
+            {
+                const form = event.target.form;
+                const index = [...form].indexOf(event.target);
+                form.elements[index + 1].focus();
+                event.preventDefault();
+            }
+            
         }
-//        if(cnt>0){sublists.elements[0].focus()}
-
     }
     return(
-        <div id="todo">
+        <div id="todo" key={props.id}>
         <form>
             <div id="todo_title">
                 <input className="inpt"
                 refer="tasktitle"
-                onKeyDown={checkEnter} 
-                id={props.index} 
-                onChange={handleChange} 
+                //onKeyDown={checkEnter} 
+                id={props.id}
+                onChange={(e)=>{setsublist({...sublist,title:e.target.value })}} 
                 placeholder="enter task title" 
                 value={sublist.title}
                 
@@ -62,25 +65,28 @@ function Todo(props){
                 <button id="editbtn" onClick={props.handleClick}>e</button>
                 <button id="editbtn" onClick={props.handleClick}>t</button>
             </div>
-            
             {
-                sublist.list.map((subtask)=>{return(
-                    <div id="todo_lists">
+                sublist.list.map((subtask)=>{
+                    console.log("#",subtask);
+                    return(
+                    <div id="todo_lists" key={subtask.key}>
                         <Listing
                             className="inpt"
                             placeholder="list here"
                             refer="subtasks"
-                            id={props.index} 
+                            id={props.id} 
+                            key={subtask.key}
                             ckey={subtask.key}
                             value={subtask.desc}
-                            onChange={handleChange}
+                            onChange={(e)=>{handleChange(e)}}
+                            onKeyDown={checkEnter}
                         />
                         <button id="editbtn" onClick={props.handleClick}>e</button>
                         <button id="editbtn" onClick={props.handleClick}>d</button>
                     </div>
                 )})
             }
-            
+            <Adder/>
             {//so we are going to use props
             //to handle the no.of inputs
             //props should contain additionally these...

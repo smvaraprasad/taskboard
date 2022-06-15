@@ -5,12 +5,24 @@ import Todo from './Todo';
 
 let id=0;
 function Dynamic(){
+    function updatelist(e,newlist){
+        const objlist=todos.map((todo)=>{
+            if(todo.id===e.target.id)
+            {
+                todo.list=newlist;
+            }
+            return todo;
+        });
+        settodos(objlist);
+    }
     const [todos, settodos]=useState([{
         id:-1,
         key:"-1",
         title:'',
-        list:[{key:"69",desc:''}]
+        list:[{key:"69",desc:''}],
+        func:{updatelist}
     }]);
+   
     /*function titleadd(e){
         let obj=todos.map((todo)=>
         {   
@@ -34,7 +46,7 @@ function Dynamic(){
             id:id++,
             key:id*2,
             title:'',
-            list:[{subid:'0',desc:'0'}]
+            list:[{key:"0",desc:""}]
         }]);
     }
     return(
@@ -43,10 +55,10 @@ function Dynamic(){
             {todos.map((props)=>{
                 return(
                     <Todo 
-                    index={props.id} 
+                    id={props.id} 
                     key={props.key}
                     title={props.title} 
-                    list={props.list} 
+                    list={props.list}
                     />
                     );
                 })
@@ -54,7 +66,7 @@ function Dynamic(){
             
             <Adder handleClick={onadd}/>
         </div>
-    );
+    ); 
 }
 export default Dynamic;
 
