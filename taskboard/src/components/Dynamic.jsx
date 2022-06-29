@@ -5,10 +5,26 @@ import Todo from './Todo';
 
 let id=0;
 function Dynamic(){
+    function updatetitle(e,newtitle){
+        console.log(newtitle," !",e.target.id," ");
+        const objlist=todos.map((todo)=>{
+            console.log(todo.id," !",e.target.id," ");
+            if(todo.id===parseInt(e.target.id))
+            {
+                console.log("hurray");
+                todo.title=newtitle;
+            }
+            return todo;
+        });
+        console.log(objlist);
+        settodos(objlist);
+    }
     function updatelist(e,newlist){
         const objlist=todos.map((todo)=>{
+            console.log(todo.id," @",e.target.id);
             if(todo.id===e.target.id)
             {
+                console.log("hurray");
                 todo.list=newlist;
             }
             return todo;
@@ -19,34 +35,15 @@ function Dynamic(){
         id:-1,
         key:"-1",
         title:'',
-        list:[{key:"69",desc:''}],
-        func:{updatelist}
+        list:[{key:"69",type:"input",desc:''}]
     }]);
    
-    /*function titleadd(e){
-        let obj=todos.map((todo)=>
-        {   
-            if(todo.id===e.target.id)
-            {
-                return({...todo,title:e.target.value});
-            }
-            return null;
-        });
-        var i=0;
-        while(obj[i]===null)
-        {
-            i++;
-        }
-        console.log(e.target.id);
-        console.log(obj);
-        //settodos([...todos,obj[i]]);
-    }*/
     function onadd(){
         settodos([...todos,{
             id:id++,
             key:id*2,
             title:'',
-            list:[{key:"0",desc:""}]
+            list:[{key:"0",type:"input",desc:""}]
         }]);
     }
     return(
@@ -59,6 +56,8 @@ function Dynamic(){
                     key={props.key}
                     title={props.title} 
                     list={props.list}
+                    listupdater={updatelist}
+                    titleupdater={updatetitle}
                     />
                     );
                 })

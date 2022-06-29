@@ -4,11 +4,43 @@ import Listing from "./Listing";
 import Adder from "./Adder";
 function Todo(props){
     //afteruse
+    function listupdater(e,newlist){
+        props.listupdater(e,newlist);
+    }
+    function titleupdater(e,title){
+        props.titleupdater(e,title);
+    }
     const [sublist,setsublist]=useState({
         id:props.id,
         title:props.title,
         list:props.list});
-    //
+    
+    function additem(e){
+        //
+        e.preventDefault();
+        console.log("triggered");
+
+        var len=(sublist.list.length);
+        var key=sublist.list[len-1].key;
+        var item=sublist.list[0].desc
+        const listobj={
+                        key:(parseInt(key)+1).toString(),
+                        type:"text",
+                        desc:item };
+        sublist.list.push(listobj);
+        const obj= {
+            id:props.id,
+            title:props.title,
+            list:sublist.list};
+        setsublist(obj);
+        
+        console.log(sublist.list);
+        console.log("adding item");
+        console.log("@",e.target.ind);
+        e={target:{id:props.ind}};
+        listupdater(e,sublist.list);
+        
+    }
     function handleChange(e){
         const values=e.target.value;
         const newlist =sublist.list.map((item)=>{
@@ -21,6 +53,8 @@ function Todo(props){
         setsublist({...sublist,
             list: newlist
         });
+
+        listupdater(e,newlist);
         e.preventDefault();
     }
     function checkEnter(event)
@@ -49,21 +83,22 @@ function Todo(props){
             
         }
     }
+    console.log("##",sublist);
     return(
+        
         <div id="todo" key={props.id}>
         <form>
             <div id="todo_title">
                 <input className="inpt"
                 refer="tasktitle"
-                //onKeyDown={checkEnter} 
                 id={props.id}
-                onChange={(e)=>{setsublist({...sublist,title:e.target.value })}} 
+                onChange={(e)=>{setsublist({...sublist,title:e.target.value });titleupdater(e,e.target.value)}} 
                 placeholder="enter task title" 
                 value={sublist.title}
                 
                 />
-                <button id="editbtn" onClick={props.handleClick}>e</button>
-                <button id="editbtn" onClick={props.handleClick}>t</button>
+                <i className="bi bi-pencil" id="editbtn"></i>
+                <i className="bi bi-trash3-fill" id="editbtn"></i>
             </div>
             {
                 sublist.list.map((subtask)=>{
@@ -71,6 +106,7 @@ function Todo(props){
                     return(
                     <div id="todo_lists" key={subtask.key}>
                         <Listing
+                            type={subtask.type}
                             className="inpt"
                             placeholder="list here"
                             refer="subtasks"
@@ -78,15 +114,14 @@ function Todo(props){
                             key={subtask.key}
                             ckey={subtask.key}
                             value={subtask.desc}
-                            onChange={(e)=>{handleChange(e)}}
+                            onChange={handleChange}
                             onKeyDown={checkEnter}
                         />
-                        <button id="editbtn" onClick={props.handleClick}>e</button>
-                        <button id="editbtn" onClick={props.handleClick}>d</button>
+                        <button id="editbtn" onClick={props.handleClick}>+</button>
                     </div>
                 )})
             }
-            <Adder/>
+            <Adder text="add item" ind={props.id} handleClick={additem} />
             {//so we are going to use props
             //to handle the no.of inputs
             //props should contain additionally these...
