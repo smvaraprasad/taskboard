@@ -51,6 +51,7 @@
   justify-content: space-evenly;
   flex-direction: column;
   width: 200px;
+  height:fit-content;
 }
 #todo_title{
   display: flex;

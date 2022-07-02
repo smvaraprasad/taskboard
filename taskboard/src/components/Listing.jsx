@@ -11,6 +11,7 @@ function Listing(props){
                 >{props.value}</p>);
         }
         else{
+            console.log("not text00");
             return (<input
                 type={props.type}
                 className={props.className}
@@ -19,6 +20,8 @@ function Listing(props){
                 onChange={props.onChange}
                 value={props.value}
                 key={props.ckey}
+                ckey={props.ckey}
+                onKeyDown={props.onKeyDown}
             />)
         }
         

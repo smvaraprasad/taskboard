@@ -20,9 +20,11 @@ function Todo(props){
         e.preventDefault();
         console.log("triggered");
 
-        var len=(sublist.list.length);
-        var key=sublist.list[len-1].key;
-        var item=sublist.list[0].desc
+        const len=(sublist.list.length);
+        const key=sublist.list[len-1].key;
+        const items=sublist.list[0].desc;
+        const item=items.slice();
+        sublist.list[0].desc="";
         const listobj={
                         key:(parseInt(key)+1).toString(),
                         type:"text",
@@ -36,17 +38,18 @@ function Todo(props){
         
         console.log(sublist.list);
         console.log("adding item");
-        console.log("@",e.target.ind);
-        e={target:{id:props.ind}};
+        console.log("@e.target.ind&props.ind",e.target.ind,"&",props.id);
+        e={target:{id:props.id}};
         listupdater(e,sublist.list);
         
     }
     function handleChange(e){
+        console.log(e.target);
+        console.log("update");
         const values=e.target.value;
+        const ckey=e.target.getAttribute("ckey");
         const newlist =sublist.list.map((item)=>{
-            console.log("item key:",item.key);//
-            console.log("event key:",e.target.getAttribute("key"));//
-            if(item.key!==e.target.getAttribute("key"))
+            if(item.key===ckey)
             {item.desc=values;}
             return item;});
 
@@ -61,26 +64,16 @@ function Todo(props){
     {
         if(event.keyCode===13 )
         {
-            if(1)
-            {
-                console.log("enterd");
-                setsublist({...sublist,
-                    list:[...sublist.list,
-                        {
-                            key: sublist.list[sublist.list.size()-1].key+"1",
-                            desc: ""
-                        }] 
-                });
-                event.preventDefault();
-            }
-            else
-            {
-                const form = event.target.form;
-                const index = [...form].indexOf(event.target);
-                form.elements[index + 1].focus();
-                event.preventDefault();
-            }
-            
+            additem(event);    
+        }
+    }
+    function movefocus(event){
+        if(event.keyCode===13)
+        {
+            const form = event.target.form;
+            const index = [...form].indexOf(event.target);
+            form.elements[index + 1].focus();
+            event.preventDefault();
         }
     }
     console.log("##",sublist);
@@ -95,7 +88,7 @@ function Todo(props){
                 onChange={(e)=>{setsublist({...sublist,title:e.target.value });titleupdater(e,e.target.value)}} 
                 placeholder="enter task title" 
                 value={sublist.title}
-                
+                onKeyDown={movefocus}
                 />
                 <i className="bi bi-pencil" id="editbtn"></i>
                 <i className="bi bi-trash3-fill" id="editbtn"></i>
@@ -121,7 +114,7 @@ function Todo(props){
                     </div>
                 )})
             }
-            <Adder text="add item" ind={props.id} handleClick={additem} />
+            <Adder text="add item" ind={props.id} handleClick={additem}  />
             {//so we are going to use props
             //to handle the no.of inputs
             //props should contain additionally these...
