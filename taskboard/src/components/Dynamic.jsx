@@ -1,10 +1,14 @@
-import React ,{useState} from 'react';
+import React ,{useState, useCallback} from 'react';
+import update from 'immutability-helper'
 import Adder from './Adder';
 import Todo from './Todo';
 //import { useId } from "react-id-generator";
 
+import { useDrop } from 'react-dnd';
+
 let id=0;
 function Dynamic(){
+
     function updatetitle(e,newtitle){
         console.log(newtitle," !",e.target.id," ");
         const objlist=todos.map((todo)=>{
@@ -36,28 +40,53 @@ function Dynamic(){
         key:"-1",
         title:'',
         list:[{key:"69",type:"input",desc:''}]
-    }]);
-   
+    }]);   
     function onadd(){
         settodos([...todos,{
             id:id++,
-            key:id*2,
+            key:(id*2).toString(),
             title:'',
             list:[{key:"0",type:"input",desc:""}]
         }]);
     }
+    const [{ isOver }, drop] = useDrop(
+        () => ({
+          accept: 'Todo',
+          drop: () => movetodo(),
+          collect: (monitor) => ({
+            isOver: !!monitor.isOver()
+          })
+        }),
+        [null]
+    );
+    const movetodo = useCallback((dragIndex, hoverIndex) => {
+        console.log("movetodo: ",dragIndex,hoverIndex);
+        settodos((todos) =>
+          update(todos, {
+            $splice: [
+              [dragIndex, 1],
+              [hoverIndex, 0, todos[dragIndex]],
+            ],
+          }),
+        )
+      }, []);
+
     return(
-        <div id="dynamic">
+        <div id="dynamic"
+        >
             
-            {todos.map((props)=>{
+            {todos.map((props,index)=>{
                 return(
-                    <Todo 
+                    <Todo
+                    Forwardref={drop}
                     id={props.id} 
+                    orderingindex={index}
                     key={props.key}
                     title={props.title} 
                     list={props.list}
                     listupdater={updatelist}
                     titleupdater={updatetitle}
+                    movetodo={movetodo}
                     />
                     );
                 })

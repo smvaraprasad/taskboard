@@ -11,7 +11,6 @@ function Listing(props){
                 >{props.value}</p>);
         }
         else{
-            console.log("not text00");
             return (<input
                 type={props.type}
                 className={props.className}

@@ -1,9 +1,64 @@
 import React  from "react";
-import {useState} from "react";
+import { useDrag } from 'react-dnd';
+import {useState, useRef} from "react";
 import Listing from "./Listing";
 import Adder from "./Adder";
+import {useDrop} from 'react-dnd';
+
 function Todo(props){
     //afteruse
+    const index=props.orderingindex;
+    const id=props.id;
+    
+    const [{ isDragging }, drag] = useDrag({
+      type:'Todo',
+      item: () => {
+        return { id, index }
+      },
+      collect: (monitor) => ({
+        isDragging: monitor.isDragging(),
+      }),
+    })
+    const ref = useRef(null);
+    const [{ handlerId, isOver }, drop] = useDrop({
+      accept: 'Todo',
+      collect(monitor) {
+        return {
+
+          handlerId: monitor.getHandlerId(),
+          isOver: !!monitor.isOver()
+        }
+      },
+      hover(item, monitor) {
+        console.log(item);
+        const dragIndex = item.index;
+        const hoverIndex = index;
+        console.log("d and h ",dragIndex," ", hoverIndex);
+        console.log(ref);
+        if (!ref.current) {
+          return
+        }
+        // Don't replace items with themselves
+        if (dragIndex === hoverIndex) {
+          return
+        }
+        // Determine rectangle on screen
+        const hoverBoundingRect = ref.current.getBoundingClientRect()
+        const hoverMiddleY =
+          (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
+        const clientOffset = monitor.getClientOffset()
+        const hoverClientY = clientOffset.y - hoverBoundingRect.top
+        if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+          return
+        }
+        if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+          return
+        }
+        props.movetodo(dragIndex, hoverIndex);
+        item.index = hoverIndex
+      },
+    });
+    drag(drop(ref));
     function listupdater(e,newlist){
         props.listupdater(e,newlist);
     }
@@ -14,7 +69,6 @@ function Todo(props){
         id:props.id,
         title:props.title,
         list:props.list});
-    
     function additem(e){
         //
         e.preventDefault();
@@ -76,12 +130,26 @@ function Todo(props){
             event.preventDefault();
         }
     }
-    console.log("##",sublist);
+    //console.log("##",sublist);
     return(
         
-        <div id="todo" key={props.id}>
-        <form>
+        <div 
+        ref={drop}
+        style={{
+            position: 'relative'
+        }}
+
+        >
+
+        <form id="todo" key={props.id} 
+        index={props.orderingindex}
+        ref={ref}
+        style={{
+        opacity: isDragging ? 0 : 1,
+        cursor: 'move',
+        }}>
             <div id="todo_title">
+                
                 <input className="inpt"
                 refer="tasktitle"
                 id={props.id}
@@ -95,7 +163,7 @@ function Todo(props){
             </div>
             {
                 sublist.list.map((subtask)=>{
-                    console.log("#",subtask);
+                    //console.log("#",subtask);
                     return(
                     <div id="todo_lists" key={subtask.key}>
                         <Listing
@@ -115,23 +183,7 @@ function Todo(props){
                 )})
             }
             <Adder text="add item" ind={props.id} handleClick={additem}  />
-            {//so we are going to use props
-            //to handle the no.of inputs
-            //props should contain additionally these...
-            //--no. of sub tasks under a title 
-            //--this no. will help us to update sublist 
-            //or we can use size of list in the props
-            //--in this case check enter function must 
-            //--do somthing, may be a flag to start list of checkboxes
-            //--in that case a prop must be added such that 
-            ////note: whatever flag used the change must be in the states
-            ////as only then rendereing happens
-            ////SUBSTATES------!
-            //substates will divide the truth
-            //substate shoudl be tried. total cards should be updated
-            //only when there is a click outside the box
-
-            }
+            
         </form>
         </div>
     
